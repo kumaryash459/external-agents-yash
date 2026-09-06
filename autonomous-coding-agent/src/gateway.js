@@ -23,4 +23,14 @@ export class DatabricksGateway {
     const body = await response.json();
     return { model, content: body.choices?.[0]?.message?.content ?? JSON.stringify(body), usage: body.usage ?? {} };
   }
+
+  configuration() {
+    return {
+      configured: Boolean(this.host && this.token && (this.endpoint || Object.values(this.endpoints).some(Boolean))),
+      hostConfigured: Boolean(this.host),
+      tokenConfigured: Boolean(this.token),
+      defaultEndpointConfigured: Boolean(this.endpoint),
+      roleEndpointsConfigured: Object.fromEntries(Object.entries(this.endpoints).map(([role, endpoint]) => [role, Boolean(endpoint)]))
+    };
+  }
 }

@@ -5,8 +5,8 @@
   "type": "module",
   "description": "Execution MVP for a traceable multi-model coding agent.",
   "scripts": {
-    "start": "node src/index.js",
-    "serve": "node src/index.js --serve",
+    "start": "node --env-file-if-exists=.env src/index.js",
+    "serve": "node --env-file-if-exists=.env src/index.js --serve",
     "test": "node --test"
   },
   "dependencies": {

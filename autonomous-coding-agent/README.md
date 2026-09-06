@@ -81,6 +81,19 @@ $env:DATABRICKS_REASONING_ENDPOINT = "reasoning-endpoint"
 $env:DATABRICKS_FAST_ENDPOINT = "fast-endpoint"
 ```
 
+`DATABRICKS_ENDPOINT` is the **name of a Model Serving endpoint**, not a SQL
+warehouse HTTP path. The agent already calls the serving-endpoint REST API, so
+installing `@databricks/sdk` is optional unless this project will also manage
+jobs, clusters, Unity Catalog, or Databricks SQL. Put the variables in
+`autonomous-coding-agent/.env` for local development; it is ignored by Git and
+loaded automatically by `npm start` and `npm run serve`.
+
+Verify configuration without exposing secrets:
+
+```powershell
+Invoke-RestMethod http://127.0.0.1:3000/api/config
+```
+
 ## Entire connection requirements
 
 1. The repository must be a Git repository and the `entire` CLI must be on `PATH`.

@@ -13,3 +13,10 @@ test("uses the role-specific Databricks endpoint when configured", async () => {
   assert.equal(url, "https://workspace.example/serving-endpoints/coding-endpoint/invocations");
   assert.equal(result.content, "ok");
 });
+
+test("reports configuration readiness without exposing credentials", () => {
+  const gateway = new DatabricksGateway({ host: "https://workspace.example", token: "secret-token", endpoint: "coding" });
+  const configuration = gateway.configuration();
+  assert.equal(configuration.configured, true);
+  assert.equal(JSON.stringify(configuration).includes("secret-token"), false);
+});

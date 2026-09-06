@@ -5,3 +5,6 @@
 /agents/entire-agent-kiro/entire-agent-kiro
 /agents/entire-agent-kilo/entire-agent-kilo
 bin/
+
+# Local service credentials
+autonomous-coding-agent/.env

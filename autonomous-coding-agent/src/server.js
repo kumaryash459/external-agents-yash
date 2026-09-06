@@ -1,6 +1,7 @@
 import { createServer } from "node:http";
 import { randomUUID } from "node:crypto";
 import { CodingAgent } from "./orchestrator.js";
+import { DatabricksGateway } from "./gateway.js";
 import { ui } from "./ui.js";
 
 
@@ -24,6 +25,7 @@ export function createAgentServer({ agentFactory = (options) => new CodingAgent(
     const url = new URL(request.url, "http://127.0.0.1");
     if (request.method === "GET" && url.pathname === "/") return send(response, 200, ui, "text/html");
     if (request.method === "GET" && url.pathname === "/health") return send(response, 200, { status: "ok" });
+    if (request.method === "GET" && url.pathname === "/api/config") return send(response, 200, { databricks: new DatabricksGateway().configuration() });
     if (request.method === "POST" && url.pathname === "/api/runs") {
       try {
         const input = await readJson(request);
