@@ -18,10 +18,17 @@ test("scores requirements, security, validation, and approval", () => {
   assert.equal(evaluation.score, 1);
 });
 
-test("runs Entire enable only with an explicit agent selection", async () => {
+test("installs Codex hooks only with an explicit agent selection", async () => {
   const commands = [];
   const integration = new EntireIntegration({ tools: { run: async (command) => { commands.push(command); return { command, exitCode: 0, output: "ok" }; } } });
   assert.deepEqual(await integration.enable(".", {}), { status: "not_requested" });
   assert.equal((await integration.enable(".", { enable: true, agent: "codex" })).status, "enabled");
-  assert.deepEqual(commands, [["entire", "enable", "--agent", "codex", "--telemetry=false"]]);
+  assert.deepEqual(commands, [["entire", "agent", "add", "codex"]]);
+});
+
+test("verifies Codex capture through Entire's agent and detailed status commands", async () => {
+  const commands = [];
+  const integration = new EntireIntegration({ tools: { run: async (command) => { commands.push(command); return { command, exitCode: 0, output: "ok" }; } } });
+  assert.equal((await integration.verify(".")).healthy, true);
+  assert.deepEqual(commands, [["entire", "agent", "list"], ["entire", "status", "--detailed"]]);
 });

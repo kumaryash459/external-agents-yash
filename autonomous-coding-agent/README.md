@@ -85,5 +85,5 @@ $env:DATABRICKS_FAST_ENDPOINT = "fast-endpoint"
 
 1. The repository must be a Git repository and the `entire` CLI must be on `PATH`.
 2. Choose and install an Entire-supported coding agent, such as Codex, then authenticate that agent normally.
-3. Explicitly enable it with `entire enable --agent <agent-name>`; this app can do that only when the request includes `"entire":{"enable":true,"agent":"<agent-name>"}` and the workflow is approved.
+3. For Codex, run `entire agent add codex`; it writes `.codex/hooks.json`. This app does that only when the request includes `"entire":{"enable":true,"agent":"codex"}` and the workflow is approved. Use `entire enable --agent codex` only for the initial Entire setup in a repository.
 4. For this app itself to appear as an Entire-native coding agent, it still needs a separate `entire-agent-autonomous` external-agent binary implementing Entire's session, transcript, and hook protocol. The current integration safely configures an already supported agent; its JSONL timeline is not a substitute for that protocol adapter.

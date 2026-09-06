@@ -1,8 +1,8 @@
 import { createServer } from "node:http";
 import { randomUUID } from "node:crypto";
 import { CodingAgent } from "./orchestrator.js";
+import { ui } from "./ui.js";
 
-const ui = `<!doctype html><title>Autonomous Coding Agent</title><style>body{font-family:system-ui;max-width:900px;margin:3rem auto}textarea{width:100%;height:18rem}button{margin:.7rem 0;padding:.5rem 1rem}pre{background:#111;color:#ddd;padding:1rem;overflow:auto}</style><h1>Autonomous Coding Agent</h1><p>Local development console. Writes and deployment require explicit approval in the request.</p><textarea id="input">{"request":"Add a health endpoint","repository":".","approved":false}</textarea><br><button onclick="run()">Run workflow</button><pre id="output"></pre><script>async function run(){const o=document.querySelector('#output');o.textContent='Starting…';const r=await fetch('/api/runs',{method:'POST',headers:{'content-type':'application/json'},body:document.querySelector('#input').value});const j=await r.json();const poll=async()=>{const x=await fetch('/api/runs/'+j.id);const s=await x.json();o.textContent=JSON.stringify(s,null,2);if(s.status==='running')setTimeout(poll,400)};poll()}</script>`;
 
 function readJson(request) {
   return new Promise((resolve, reject) => {
@@ -18,7 +18,7 @@ function send(response, status, body, type = "application/json") {
   response.end(type === "application/json" ? JSON.stringify(body) : body);
 }
 
-export function createAgentServer({ agentFactory = () => new CodingAgent() } = {}) {
+export function createAgentServer({ agentFactory = (options) => new CodingAgent(options) } = {}) {
   const runs = new Map();
   return createServer(async (request, response) => {
     const url = new URL(request.url, "http://127.0.0.1");
@@ -30,7 +30,9 @@ export function createAgentServer({ agentFactory = () => new CodingAgent() } = {
         if (!input.request || typeof input.request !== "string") return send(response, 400, { error: "request is required" });
         const id = randomUUID();
         runs.set(id, { id, status: "running" });
-        void agentFactory().execute(input).then((state) => runs.set(id, { id, status: "completed", state })).catch((error) => runs.set(id, { id, status: "failed", error: error.message }));
+        const events = [];
+        const timeline = { record: async (type, payload) => events.push({ timestamp: new Date().toISOString(), type, ...payload }) };
+        void agentFactory({ timeline }).execute(input).then((state) => runs.set(id, { id, status: "completed", state, events })).catch((error) => runs.set(id, { id, status: "failed", error: error.message, events }));
         return send(response, 202, { id, status: "running" });
       } catch (error) { return send(response, 400, { error: error.message }); }
     }

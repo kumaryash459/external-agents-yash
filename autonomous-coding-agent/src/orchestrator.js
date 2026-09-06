@@ -129,6 +129,7 @@ export class CodingAgent {
       })
       .addNode("entire", async ({ input, state }) => {
         state.entire = await this.entire.enable(state.repository, input.entire);
+        if (state.entire.status === "enabled") state.entire.verification = await this.entire.verify(state.repository);
         await timeline.record("entire_integration", state.entire);
         return update(state);
       })
